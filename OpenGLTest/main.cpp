@@ -135,7 +135,7 @@ void display_func() {
 
 int main(int argc, char *argv[]) {
 
-	string jsonString = readFile("triangles.json");
+	string jsonString = readFile("CrazyTriangles.json");
 	if (jsonString.empty()) {
 		return -1; // Exit if file reading failed
 	}
@@ -155,8 +155,8 @@ int main(int argc, char *argv[]) {
 
 	int_opengl();
 
-	// Set the solid background color
-	glClearColor(0.2f, 0.5f, 0.7f, 1.0f);
+	// background color
+	glClearColor(0.0f, 0.4f, 0.5f, 1.0f);
 
 	// Set up the projection
 	glMatrixMode(GL_PROJECTION);
