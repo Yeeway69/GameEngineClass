@@ -13,7 +13,6 @@ static const int WINDOW_HEIGHT = 600;
 
 using vec3 = glm::vec3;
 
-// Data Structures
 struct Position {
 	float x;
 	float y;
@@ -32,13 +31,12 @@ struct Triangle {
 };
 
 // Global list of triangles
-std::vector<Triangle> g_triangles;
+vector<Triangle> g_triangles;
 
-// Function to read a file's contents into a string
-string readFile(const std::string& filename) {
+string readFile(const string& filename) {
 	ifstream fileStream(filename);
 	if (!fileStream.is_open()) {
-		std::cerr << "Failed to open file: " << filename << std::endl;
+		cerr << "Failed to open file: " << filename << endl;
 		return "";
 	}
 
@@ -48,16 +46,16 @@ string readFile(const std::string& filename) {
 	return content;
 }
 
-// Function to parse JSON string and populate triangles
-std::vector<Triangle> parseTriangles(const std::string& jsonString) {
-	std::vector<Triangle> triangles;
+// Parse JSON string and populate triangles
+vector<Triangle> parseTriangles(const string& jsonString) {
+	vector<Triangle> triangles;
 	try {
-		// Parse the JSON string
+
 		json jsonData = json::parse(jsonString);
 
-		// Check if "triangles" key exists and is an array
+		// Check if "triangles" key is actually a thing
 		if (!jsonData.contains("triangles") || !jsonData["triangles"].is_array()) {
-			std::cerr << "JSON does not contain a valid 'triangles' array." << std::endl;
+			cerr << "JSON has no valid 'triangles' array." << endl;
 			return triangles;
 		}
 
@@ -65,38 +63,38 @@ std::vector<Triangle> parseTriangles(const std::string& jsonString) {
 		for (const auto& item : jsonData["triangles"]) {
 			Triangle tri;
 
-			// Parse position
+			// position
 			if (item.contains("position") && item["position"].is_object()) {
 				tri.position.x = item["position"].value("x", 0.0f);
 				tri.position.y = item["position"].value("y", 0.0f);
 			}
 			else {
-				std::cerr << "Triangle missing 'position' data. Skipping this triangle." << std::endl;
+				cerr << "Triangle missing 'position' data. Skipping this triangle." << endl;
 				continue; // Skip this triangle
 			}
 
-			// Parse color
+			// color
 			if (item.contains("color") && item["color"].is_object()) {
 				tri.color.r = static_cast<GLubyte>(item["color"].value("r", 255));
 				tri.color.g = static_cast<GLubyte>(item["color"].value("g", 255));
 				tri.color.b = static_cast<GLubyte>(item["color"].value("b", 255));
 			}
 			else {
-				std::cerr << "Triangle missing 'color' data. Using default color (white)." << std::endl;
+				cerr << "Triangle missing 'color' data. Using default color (white)." << endl;
 				tri.color = { 255, 255, 255 }; // Default color: white
 			}
 
-			// Parse size
+			// size
 			tri.size = item.value("size", 1.0f);
 
 			triangles.push_back(tri);
 		}
 	}
 	catch (json::parse_error& e) {
-		std::cerr << "JSON Parse Error: " << e.what() << std::endl;
+		cerr << "JSON Parse Error: " << e.what() << endl;
 	}
 	catch (json::type_error& e) {
-		std::cerr << "JSON Type Error: " << e.what() << std::endl;
+		cerr << "JSON Type Error: " << e.what() << endl;
 	}
 
 	return triangles;
@@ -108,7 +106,7 @@ void int_opengl() {
 	glEnable(GL_DEPTH_TEST);
 }
 
-// Function to draw a single triangle
+
 void draw_triangle(const Triangle& tri) {
 	glColor3ub(tri.color.r, tri.color.g, tri.color.b);
 
@@ -137,16 +135,14 @@ void display_func() {
 
 int main(int argc, char *argv[]) {
 
-	// Read JSON data from the file
-	std::string jsonString = readFile("triangles.json");
+	string jsonString = readFile("triangles.json");
 	if (jsonString.empty()) {
 		return -1; // Exit if file reading failed
 	}
 
-	// Parse the JSON and populate g_triangles
 	g_triangles = parseTriangles(jsonString);
 	if (g_triangles.empty()) {
-		std::cerr << "No triangles to render. Exiting." << std::endl;
+		cerr << "No triangles to render. Exiting." << endl;
 		return -1;
 	}
 
@@ -157,13 +153,12 @@ int main(int argc, char *argv[]) {
 	
 	glutCreateWindow("OpenGL Triangles!!!");
 
-	//OpenGL initialization
 	int_opengl();
 
-	// Set the clear color
+	// Set the solid background color
 	glClearColor(0.2f, 0.5f, 0.7f, 1.0f);
 
-	// Set up the projection (optional, but good practice)
+	// Set up the projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(-2.0, 2.0, -2.0, 2.0); // Set coordinate system
